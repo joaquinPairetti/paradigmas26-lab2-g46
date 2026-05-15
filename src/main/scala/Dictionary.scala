@@ -26,30 +26,42 @@ object Dictionary {
    * @param filePath   ruta al archivo de diccionario (ej: "data/people.txt")
    * @param entityType tipo de entidad: "Person", "University", "ProgrammingLanguage", etc.
    * @return lista de NamedEntity del tipo correspondiente
-   *
-   * TODO (Ejercicio 2): Implementar este método.
-   *
-   *   Pasos sugeridos:
-   *     1. Leer las líneas del archivo
-   *     2. Para cada línea, crear la instancia de la clase correcta
-   *     3. Retornar la lista de entidades creadas
-   *
-   *   Para crear la clase correcta según el tipo se puede usar match:
-   *
    */
   def loadFromFile(filePath: String, entityType: String): List[NamedEntity] = {
-    ???
+    val lines = FileIO.readLines(filePath)
+    lines.map { line => 
+      entityType match {
+        case "Person"              => new Person(line)
+        case "Organization"        => new Organization(line)
+        case "University"          => new University(line)
+        case "Place"               => new Place(line)
+        case "Technology"          => new Technology(line)
+        case "ProgrammingLanguage" => new ProgrammingLanguage(line)
+      }
+    }
   }
 
   /**
    * Carga todos los diccionarios disponibles y combina sus entidades.
    *
    * @return lista con todas las entidades de todos los diccionarios
-   *
-   * TODO (Ejercicio 2): Implementar este método.
-   *
    */
   def loadAll(): List[NamedEntity] = {
-    ???
+    val people = loadFromFile("data/people.txt", "Person")
+    val universities = loadFromFile("data/universities.txt", "University")
+    val languages = loadFromFile("data/languages.txt", "ProgrammingLanguage")
+    val organizations = loadFromFile("data/organizations.txt", "Organization")
+    val places = loadFromFile("data/places.txt", "Place")
+
+    people ++ universities ++ languages ++ organizations ++ places
+  }
+}
+
+object TestEjercicio2 {
+  def main(args: Array[String]): Unit = {
+    val dict = Dictionary.loadAll()
+    println(s"Total de entidades: ${dict.size}")
+    dict.filter(_.entityType == "Person").foreach(p =>
+    println(p.describe))
   }
 }
