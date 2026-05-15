@@ -54,21 +54,6 @@ object Analyzer {
    *
    * @param entities lista de entidades detectadas
    * @return mapa de entityType → cantidad de apariciones
-   *
-   * TODO (Ejercicio 5): Implementar este método.
-   *
-   *   Ejemplo:
-   *     entities = List(
-   *                  Person("Alan Turing"),
-   *                  ProgrammingLanguage("Scala"),
-   *                  Person("Ada Lovelace"),
-   *                  University("MIT")
-   *                )
-   *     resultado = Map(
-   *                   "Person"              -> 2,
-   *                   "ProgrammingLanguage" -> 1,
-   *                   "University"          -> 1
-   *                 )
    */
   def countByType(entities: List[NamedEntity]): Map[String, Int] = {
     entities.groupBy(_.entityType).view.mapValues(_.length).toMap
