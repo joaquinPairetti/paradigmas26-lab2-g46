@@ -6,6 +6,7 @@
  * Responsable de detectar entidades nombradas en texto libre y
  * producir estadísticas sobre ellas.
  */
+import scala.util.matching.Regex
 object Analyzer {
 
   /**
@@ -35,7 +36,17 @@ object Analyzer {
    *                  )
    */
   def detectEntities(text: String, dictionary: List[NamedEntity]): List[NamedEntity] = {
-    ???
+    dictionary.filter { entity =>
+      //toma el texto literal de la entity y lo tranforma para que regex no se rompa
+      //ej: c++ se tomaria mal sin esto pues + es un caracter especial de regex
+      val escaped = Regex.quote(entity.text)
+      //(?i)->ignore case, \\b es como marcar los limites de escaped, solo tiene en cuenta escaped
+      //nada antes ni nada despues, ej escaped = java, text aparece javascript
+      //sin \b se tomaria javascript erroneamente
+      val pattern = ("(?i)\\b" + escaped + "\\b").r
+      //metodo de regex para hallar la primera aparicion de lo que configuramos quie busque
+      pattern.findFirstIn(text).nonEmpty
+    }
   }
 
   /**
@@ -46,5 +57,15 @@ object Analyzer {
    */
   def countByType(entities: List[NamedEntity]): Map[String, Int] = {
     entities.groupBy(_.entityType).view.mapValues(_.length).toMap
+  }
+
+}
+
+object TestEjercicio3 {
+  def main(args: Array[String]): Unit = {
+    val text = "I like Javascript"
+    val dict = Dictionary.loadAll()
+    val found = Analyzer.detectEntities(text, dict)
+    found.foreach(e => println(e.describe))
   }
 }

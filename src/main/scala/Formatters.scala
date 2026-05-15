@@ -31,7 +31,15 @@ object Formatters {
    *   Si no se detectaron entidades, mostrar un mensaje indicándolo.
    */
   def formatNERResult(postTitle: String, entities: List[NamedEntity]): String = {
-    ???
+    val header = s"""Post: "$postTitle""""
+    if (entities.isEmpty) {
+      s"""$header
+         |  (sin entidades detectadas)""".stripMargin
+    } else {
+      s"""$header
+         |Entidades detectadas:
+         |  ${entities.map(_.describe).mkString("\n  ")}""".stripMargin
+    }
   }
 
   /**
@@ -68,6 +76,19 @@ object TestEjercicio5 {
     )
     val counts = Analyzer.countByType(entities)
     val result = Formatters.formatEntityStats(counts)
+    println(result)
+  }
+}
+
+object TestEjercicio4 {
+  def main(args: Array[String]): Unit = {
+    val postTitle = "Scala 3 released at EPFL by Martin Odersky"
+    val entities = List(
+      new ProgrammingLanguage("Scala"),
+      new University("EPFL"),
+      new Person("Martin Odersky")
+    )
+    val result = Formatters.formatNERResult(postTitle, entities)
     println(result)
   }
 }
