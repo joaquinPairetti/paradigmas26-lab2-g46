@@ -1,6 +1,10 @@
 // =====================================================================
 // Ejercicio 6: Integración del sistema completo
 // =====================================================================
+import Analyzer.detectEntities
+import Dictionary.loadAll
+import Formatters.formatNERResult
+import java.text.Normalizer.Form
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -8,10 +12,13 @@ object Main {
     // ------------------------------------------------------------------
     // Paso 1: Cargar diccionarios
     // ------------------------------------------------------------------
-    // TODO (Ejercicio 2)
-    val dictionary: List[NamedEntity] = ???
-
-    println(s"Diccionario cargado: ${dictionary.size} entidades.\n")
+    val dictionary: List[NamedEntity] = loadAll()
+    
+    println(s"\nDiccionario cargado: ${dictionary.size} entidades.\nDiccionario:")
+    dictionary.foreach { entity =>
+      println(entity.describe)
+    }
+    println("\n"++ "="*50)
 
     // ------------------------------------------------------------------
     // Paso 2: Descargar posts
@@ -24,22 +31,31 @@ object Main {
       val titles = FileIO.extractPostTitles(json)
       (url, titles)
     }
+    
+    val procesados : List[(String, List[NamedEntity])] = 
+      allPosts.flatMap { case (url, titles) =>
+        
+        titles.map { title =>
+          val entities = 
+            Analyzer.detectEntities(title, dictionary)
+          (title, entities)
+        }
+      }
 
-    // ------------------------------------------------------------------
-    // Paso 3: Detectar entidades y mostrar resultados por post
-    // ------------------------------------------------------------------
-    // TODO (Ejercicios 3, 4 y 6):
-    //   Para cada post:
-    //     1. Detectar entidades
-    //     2. Formatear y mostrar el resultado
+    procesados.foreach { case (title, entities) =>
+      val formated = Formatters.formatNERResult(title, entities)
+      println(formated)
+    }
 
-    // ------------------------------------------------------------------
-    // Paso 4: Estadísticas globales
-    // ------------------------------------------------------------------
-    // TODO (Ejercicios 5 y 6):
-    //   1. Recolectar TODAS las entidades detectadas en todos los posts
-    //   2. Contar por tipo
-    //   3. Mostrar el resumen
+    val todasLasEntidades: List[NamedEntity] = 
+      procesados.flatMap { case (_, entities) =>
+        entities
+      }
+    
+    val stats = Analyzer.countByType(todasLasEntidades)
 
+    val formated = Formatters.formatEntityStats(stats)
+
+    println(formated)
   }
 }
